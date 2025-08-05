@@ -7,10 +7,14 @@ const Main = () => {
     <div>
       {/* Navbar */}
       <Navbar />
+
       {/* Outlet */}
+
+      {/* min-h => 100v -(navBarHeight + footerHeight) */}
       <div className='min-h-[calc(100vh-306px)]'>
         <Outlet />
       </div>
+
       {/* Footer */}
       <Footer />
     </div>

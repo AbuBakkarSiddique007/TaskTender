@@ -4,6 +4,7 @@ import { AuthContext } from '../providers/AuthProvider'
 import { Link } from 'react-router-dom'
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext)
+
   return (
     <div className='navbar bg-base-100 shadow-sm container px-4 mx-auto'>
       <div className='flex-1'>

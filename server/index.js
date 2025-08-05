@@ -1,9 +1,9 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 require('dotenv').config()
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 9000
 const app = express()
 
 app.use(cors())
@@ -22,11 +22,70 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    const db = client.db("TaskTender-DB")
+    const jobCollection = db.collection("jobs")
+
+    //1 Post(save) job data
+    app.post("/add-job", async (req, res) => {
+      const jobData = req.body
+      const result = await jobCollection.insertOne(jobData)
+
+      console.log(result);
+      res.send(result)
+    })
+
+    // 2 Get data from DB
+    app.get("/jobs", async (req, res) => {
+      const result = await jobCollection.find().toArray()
+      res.send(result)
+    })
+
+    // 3 Get all jobs posted by Specific user
+    app.get("/jobs/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { 'buyer.email': email }
+      const result = await jobCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+    // 4 Delete a specific job from DB
+    app.delete("/job/:id", async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await jobCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    // 5 Get specific pos data from db (For update it)
+    app.get("/job/:id", async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+
+      const result = await jobCollection.findOne(filter)
+      res.send(result)
+    })
+
+    // 6 Update job post (Similar to post method)
+    app.put("/update-job/:id", async (req, res) => {
+      const id = req.params.id
+      const jobData = req.body
+      const update = {
+        $set: jobData
+      }
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const result = await jobCollection.updateOne(filter, update, options)
+      console.log(result);
+      res.send(result)
+    })
+
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
       'Pinged your deployment. You successfully connected to MongoDB!'
     )
+
   } finally {
     // Ensures that the client will close when you finish/error
   }

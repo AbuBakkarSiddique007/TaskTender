@@ -1,9 +1,84 @@
-import { useState } from 'react'
+import axios from 'axios'
+import { useContext, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { useNavigate, useParams } from 'react-router-dom'
+import { AuthContext } from '../providers/AuthProvider'
+import toast from 'react-hot-toast'
 
 const UpdateJob = () => {
+  const { user } = useContext(AuthContext)
   const [startDate, setStartDate] = useState(new Date())
+  const navigate = useNavigate()
+
+  // For get the data :
+  const { id } = useParams()
+
+  const [job, setJob] = useState({});
+  const fetchSingleJob = async () => {
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`);
+      setJob(data);
+      setStartDate(new Date(data.date))
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+  useEffect(() => {
+    fetchSingleJob();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+  console.log(job);
+
+  console.log("job.category:", job.category);
+
+
+  // Update job:
+  const handleSumbit = async (e) => {
+    e.preventDefault();
+
+    const form = e.target
+    const title = form.job_title.value
+    const description = form.description.value
+    const max_price = form.max_price.value
+    const min_price = form.min_price.value
+    const category = form.category.value
+    const email = form.email.value
+    const date = startDate
+
+    const formData = {
+      // email,
+      buyer: {
+        email,
+        name: user?.displayName,
+        photo: user?.photoURL
+      },
+      title,
+      description,
+      max_price,
+      min_price,
+      category,
+      date,
+      bid_count: job.bid_count,
+
+    }
+
+    try {
+      // Make a post request
+      const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/update-job/${id}`, formData)
+      console.log("data", data);
+      console.log(formData);
+
+      form.reset()
+      toast.success("Updated Data successfully.")
+      navigate('/my-posted-jobs')
+
+    }
+    catch (error) {
+      console.log("Error", error);
+      toast.error(error.message)
+    }
+  }
 
   return (
     <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
@@ -12,7 +87,7 @@ const UpdateJob = () => {
           Update a Job
         </h2>
 
-        <form>
+        <form onSubmit={handleSumbit}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='job_title'>
@@ -22,6 +97,7 @@ const UpdateJob = () => {
                 id='job_title'
                 name='job_title'
                 type='text'
+                defaultValue={job.title}
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
             </div>
@@ -34,6 +110,7 @@ const UpdateJob = () => {
                 id='emailAddress'
                 type='email'
                 name='email'
+                defaultValue={user.email}
                 disabled
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
@@ -43,6 +120,7 @@ const UpdateJob = () => {
 
               <DatePicker
                 className='border p-2 rounded-md'
+
                 selected={startDate}
                 onChange={date => setStartDate(date)}
               />
@@ -53,13 +131,15 @@ const UpdateJob = () => {
                 Category
               </label>
               <select
+                key={job.category}
                 name='category'
                 id='category'
+                defaultValue={job.category || ""}
                 className='border p-2 rounded-md'
               >
-                <option value='Web Development'>Web Development</option>
-                <option value='Graphics Design'>Graphics Design</option>
-                <option value='Digital Marketing'>Digital Marketing</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Graphics Design">Graphics Design</option>
+                <option value="Digital Marketing">Digital Marketing</option>
               </select>
             </div>
             <div>
@@ -70,6 +150,7 @@ const UpdateJob = () => {
                 id='min_price'
                 name='min_price'
                 type='number'
+                defaultValue={job.min_price}
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
             </div>
@@ -82,6 +163,7 @@ const UpdateJob = () => {
                 id='max_price'
                 name='max_price'
                 type='number'
+                defaultValue={job.max_price}
                 className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               />
             </div>
@@ -94,6 +176,7 @@ const UpdateJob = () => {
               className='block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md  focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40  focus:outline-none focus:ring'
               name='description'
               id='description'
+              defaultValue={job.description}
               cols='30'
             ></textarea>
           </div>
