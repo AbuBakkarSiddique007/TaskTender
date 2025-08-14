@@ -8,9 +8,9 @@ const JobCard = ({ job }) => {
     max_price,
     min_price,
     category,
-    date, _id} = job || {}
+    date, _id, bid_count } = job || {}
 
-  console.log(title, max_price, min_price);
+  console.log(bid_count);
 
   return (
     <Link
@@ -42,7 +42,7 @@ const JobCard = ({ job }) => {
         <p className='mt-2 text-sm font-bold text-gray-600 '>
           Range: ${min_price} - ${max_price}
         </p>
-        <p className='mt-2 text-sm font-bold text-gray-600 '>Total Bids: 0</p>
+        <p className='mt-2 text-sm font-bold text-gray-600 '>Total Bids: {bid_count}</p>
       </div>
     </Link>
   )

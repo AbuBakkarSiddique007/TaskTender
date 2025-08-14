@@ -24,8 +24,9 @@ async function run() {
   try {
     const db = client.db("TaskTender-DB")
     const jobCollection = db.collection("jobs")
+    const bidsCollection = db.collection("bids")
 
-    //1 Post(save) job data
+    //1. Post(save) job data in db
     app.post("/add-job", async (req, res) => {
       const jobData = req.body
       const result = await jobCollection.insertOne(jobData)
@@ -34,13 +35,13 @@ async function run() {
       res.send(result)
     })
 
-    // 2 Get data from DB
+    // 2. Get data from DB
     app.get("/jobs", async (req, res) => {
       const result = await jobCollection.find().toArray()
       res.send(result)
     })
 
-    // 3 Get all jobs posted by Specific user
+    // 3. Get all jobs posted by Specific user
     app.get("/jobs/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { 'buyer.email': email }
@@ -48,7 +49,7 @@ async function run() {
       res.send(result)
     })
 
-    // 4 Delete a specific job from DB
+    // 4. Delete a specific job from DB
     app.delete("/job/:id", async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
@@ -56,7 +57,7 @@ async function run() {
       res.send(result)
     })
 
-    // 5 Get specific pos data from db (For update it)
+    // 5. Get specific post data from db (For update it)
     app.get("/job/:id", async (req, res) => {
       const id = req.params.id
       const filter = { _id: new ObjectId(id) }
@@ -69,13 +70,86 @@ async function run() {
     app.put("/update-job/:id", async (req, res) => {
       const id = req.params.id
       const jobData = req.body
+
       const update = {
         $set: jobData
       }
+
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true }
       const result = await jobCollection.updateOne(filter, update, options)
       console.log(result);
+      res.send(result)
+    })
+
+
+    //7 Post(save) bids data in db
+    app.post("/add-bid", async (req, res) => {
+      const bidData = req.body
+
+      // 0 : if a user already bid in this job
+      const query = { email: bidData.email, jobId: bidData.jobId }
+      const alreadyExist = await bidsCollection.findOne(query)
+      if (alreadyExist) return res.status(400).send("You have already placed this job.")
+
+
+      // 1: Save data in  bidsCollection
+      const result = await bidsCollection.insertOne(bidData)
+
+      // 2: Increase bids count in jobs collection
+      const filter = { _id: new ObjectId(bidData.jobId) }
+      const update = {
+        $inc: { bid_count: 1 }
+
+      }
+      const updateBidCound = await jobCollection.updateOne(filter, update)
+      console.log(updateBidCound);
+      res.send(result)
+    })
+
+    // // 8. Get all bids for a specific person
+    // app.get("/bids/:email", async (req, res) => {
+    //   const email = req.params.email
+    //   const filter = { email: email } //Or: {email}
+    //   const result = await bidsCollection.find(filter).toArray()
+    //   res.send(result)
+    // })
+
+    // // 9. Get all bid requests for a specific user
+    // app.get("/bid-requests/:email", async (req, res) => {
+    //   const email = req.params.email
+    //   const filter = { buyer: email }
+    //   const result = await bidsCollection.find(filter).toArray()
+    //   res.send(result)
+    // })
+
+
+    // 8. Get all bids for a specific person
+    app.get("/bids/:email", async (req, res) => {
+      const email = req.params.email
+      const isBuyer = req.query.buyer
+
+      console.log("Email:", email, "Is buyer query?:", isBuyer)
+
+      // const filter = { email: email } //Or: {email}
+
+      let filter = {}
+      if (isBuyer) {
+        filter.buyer = email
+      }
+      else {
+        filter.email = email
+      }
+
+      const result = await bidsCollection.find(filter).toArray()
+      res.send(result)
+    })
+
+    // 9. Get all bid requests for a specific user
+    app.get("/bid-requests/:email", async (req, res) => {
+      const email = req.params.email
+      const filter = { buyer: email }
+      const result = await bidsCollection.find(filter).toArray()
       res.send(result)
     })
 

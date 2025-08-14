@@ -23,23 +23,18 @@ const MyPostedJobs = () => {
     if (user?.email) {
       fetchAllJobs()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email])
-
-  console.log(jobs);
 
   // Delete job post:
   const handleDelete = async (id) => {
     try {
       const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/job/${id}`)
       toast.success("Job post deleted successfully.")
-      console.log(data);
-
       fetchAllJobs()
     } catch (error) {
       console.log("Something went wrong!!!");
       toast.error(error.message)
-
     }
   }
 
@@ -57,8 +52,6 @@ const MyPostedJobs = () => {
                 toast.dismiss(t.id)
                 handleDelete(id)
               }}
-
-
             >Yes</button>
             <button
               className='bg-red-500 text-white px-3 py-1 rounded-md'
@@ -67,7 +60,6 @@ const MyPostedJobs = () => {
         </div >
       )
     );
-
   }
 
 
