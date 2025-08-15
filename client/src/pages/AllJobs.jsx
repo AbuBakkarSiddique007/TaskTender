@@ -9,12 +9,13 @@ const AllJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState('');
   const [search, setSearch] = useState('')
+  const [sort, setSort] = useState('')
 
   useEffect(() => {
     const fetchAllJobs = async () => {
       try {
         const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}&search=${search}`
+          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}&search=${search}&sort=${sort}`
         );
         setJobs(data);
       } catch (error) {
@@ -23,10 +24,8 @@ const AllJobs = () => {
     };
 
     fetchAllJobs();
-  }, [filter, search]);
+  }, [filter, search, sort]);
 
-  console.log(search);
-  console.log(filter);
 
   return (
     <div className='container px-6 py-10 mx-auto min-h-[calc(100vh-306px)] flex flex-col justify-between'>
@@ -73,6 +72,9 @@ const AllJobs = () => {
               name='category'
               id='category'
               className='border p-4 rounded-md'
+
+              onChange={(e) => setSort(e.target.value)}
+
             >
               <option value=''>Sort By Deadline</option>
               <option value='dsc'>Descending Order</option>

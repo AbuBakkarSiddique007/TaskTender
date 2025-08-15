@@ -183,17 +183,24 @@ async function run() {
     app.get('/all-jobs', async (req, res) => {
       const filter = req.query.filter
       const search = req.query.search
+      const sort = req.query.sort
 
-      const query = {
+      let query = {
         title: {
           $regex: search,
           $options: 'i'
         }
       }
-      if (filter) query.category = filter
 
-      const result = await jobCollection.find(query).toArray()
-      res.send(result)
+      let options = {};
+      if (sort) {
+        options.sort = {
+          date: sort === 'asc' ? 1 : -1  
+        };
+      }
+
+      const result = await jobCollection.find(query, options).toArray();
+      res.send(result);
     })
 
 
