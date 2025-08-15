@@ -26,6 +26,11 @@ const AllJobs = () => {
     fetchAllJobs();
   }, [filter, search, sort]);
 
+  const handleReset = () => {
+    setFilter('');
+    setSearch('');
+    setSort('');
+  }
 
   return (
     <div className='container px-6 py-10 mx-auto min-h-[calc(100vh-306px)] flex flex-col justify-between'>
@@ -35,8 +40,8 @@ const AllJobs = () => {
             <select
               name='category'
               id='category'
-
               onChange={(e) => setFilter(e.target.value)}
+              value={filter}
 
               className='border p-4 rounded-lg'
             >
@@ -53,10 +58,10 @@ const AllJobs = () => {
                 className='px-6 py-2 text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent'
                 type='text'
                 name='search'
-
                 onChange={(e) => setSearch(e.target.value)}
                 // onBlur={(e) => setSearch(e.target.value)}
 
+                value={search}
 
                 placeholder='Enter Job Title'
                 aria-label='Enter Job Title'
@@ -72,8 +77,8 @@ const AllJobs = () => {
               name='category'
               id='category'
               className='border p-4 rounded-md'
-
               onChange={(e) => setSort(e.target.value)}
+              value={sort}
 
             >
               <option value=''>Sort By Deadline</option>
@@ -81,7 +86,9 @@ const AllJobs = () => {
               <option value='asc'>Ascending Order</option>
             </select>
           </div>
-          <button className='btn'>Reset</button>
+          <button
+            onClick={handleReset}
+            className='btn'>Reset</button>
         </div>
         <div className='grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
           {
