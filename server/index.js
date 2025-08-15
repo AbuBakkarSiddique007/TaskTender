@@ -179,6 +179,17 @@ async function run() {
       }
     })
 
+    // 11. All Jobs
+    app.get('/all-jobs', async (req, res) => {
+      const filter = req.query.filter
+
+      const query = {}
+      if (filter) query.category = filter
+
+      const result = await jobCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
 
     // Send a ping to confirm a successful connection

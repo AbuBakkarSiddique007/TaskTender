@@ -10,7 +10,7 @@ const JobCard = ({ job }) => {
     category,
     date, _id, bid_count } = job || {}
 
-  console.log(bid_count);
+  // console.log(bid_count);
 
   return (
     <Link

@@ -7,21 +7,24 @@ import { useEffect } from 'react'
 const AllJobs = () => {
 
   const [jobs, setJobs] = useState([]);
-
-  const fetchAllJobs = async () => {
-    try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
-      setJobs(data);
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    fetchAllJobs();
-  }, []);
+    const fetchAllJobs = async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}`
+        );
+        setJobs(data);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
 
-  console.log(jobs);
+    fetchAllJobs();
+  }, [filter]);
+
+  console.log(filter);
 
   return (
     <div className='container px-6 py-10 mx-auto min-h-[calc(100vh-306px)] flex flex-col justify-between'>
@@ -31,6 +34,7 @@ const AllJobs = () => {
             <select
               name='category'
               id='category'
+              onChange={(e) => setFilter(e.target.value)}
               className='border p-4 rounded-lg'
             >
               <option value=''>Filter By Category</option>
