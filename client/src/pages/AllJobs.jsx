@@ -8,12 +8,13 @@ const AllJobs = () => {
 
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState('');
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const fetchAllJobs = async () => {
       try {
         const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}`
+          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}&search=${search}`
         );
         setJobs(data);
       } catch (error) {
@@ -22,8 +23,9 @@ const AllJobs = () => {
     };
 
     fetchAllJobs();
-  }, [filter]);
+  }, [filter, search]);
 
+  console.log(search);
   console.log(filter);
 
   return (
@@ -34,7 +36,9 @@ const AllJobs = () => {
             <select
               name='category'
               id='category'
+
               onChange={(e) => setFilter(e.target.value)}
+
               className='border p-4 rounded-lg'
             >
               <option value=''>Filter By Category</option>
@@ -44,12 +48,17 @@ const AllJobs = () => {
             </select>
           </div>
 
-          <form>
+          <div>
             <div className='flex p-1 overflow-hidden border rounded-lg    focus-within:ring focus-within:ring-opacity-40 focus-within:border-blue-400 focus-within:ring-blue-300'>
               <input
                 className='px-6 py-2 text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent'
                 type='text'
                 name='search'
+
+                onChange={(e) => setSearch(e.target.value)}
+                // onBlur={(e) => setSearch(e.target.value)}
+
+
                 placeholder='Enter Job Title'
                 aria-label='Enter Job Title'
               />
@@ -58,7 +67,7 @@ const AllJobs = () => {
                 Search
               </button>
             </div>
-          </form>
+          </div>
           <div>
             <select
               name='category'
