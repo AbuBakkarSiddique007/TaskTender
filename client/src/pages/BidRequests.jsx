@@ -2,6 +2,7 @@ import axios from "axios"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../providers/AuthProvider"
 import BidRequestsTableRow from "../components/BidRequestsTableRow"
+import toast from 'react-hot-toast'
 
 const BidRequests = () => {
   const { user } = useContext(AuthContext)
@@ -23,7 +24,43 @@ const BidRequests = () => {
       console.log(error.message);
     }
   }
-  console.log(bidsJob);
+
+  const handleStatusChange = async (bidId, previousStatus, currentStatus) => {
+    console.table({ bidId, previousStatus, currentStatus })
+
+    // Validation
+    if (previousStatus === currentStatus) {
+      console.log("Status unchanged")
+      toast.warning("Status is the same")
+      return
+    }
+
+    if (previousStatus === "Completed") {
+      console.log("Cannot change completed status")
+      toast.error("Cannot modify completed bids")
+      return
+    }
+
+    try {
+      const { data } = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/bid-status-update/${bidId}`,
+        { status: currentStatus } // Changed from currentStatus to status
+      )
+
+      console.log("Status updated:", data)
+
+      if (data.modifiedCount > 0) {
+        toast.success("Status updated successfully")
+        // Refresh the list
+        await fetchAllBidsReq()
+      } else {
+        toast.error("Failed to update status")
+      }
+    } catch (error) {
+      console.error("Error updating status:", error.message)
+      toast.error("Failed to update status") 
+    }
+  }
 
   return (
     <section className='container px-4 mx-auto my-12'>
@@ -97,6 +134,7 @@ const BidRequests = () => {
                 <tbody className='bg-white divide-y divide-gray-200 '>
 
                   {bidsJob.map(bid => <BidRequestsTableRow
+                    handleStatusChange={handleStatusChange}
                     key={bid._id}
                     bid={bid} >
                   </BidRequestsTableRow>)}

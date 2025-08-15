@@ -2,8 +2,8 @@ import { format } from "date-fns";
 
 
 // eslint-disable-next-line react/prop-types
-const BidTableRow = ({ bid }) => {
-    const { title, date, price, category, status } = bid || {}
+const BidTableRow = ({ bid, handleStatusChange }) => {
+    const { title, date, price, category, status, _id } = bid || {}
 
     return (
         <tr>
@@ -33,18 +33,32 @@ const BidTableRow = ({ bid }) => {
             </td>
             <td className='px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap'>
                 <div
-                    className={`inline-flex items-center px-3 py-1 rounded-full gap-x-2 bg-yellow-100/60 text-yellow-500`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full gap-x-2
+                        ${status == 'Pending' && 'bg-yellow-100/60 text-yellow-500'}
+                        ${status == 'In progress' && 'bg-blue-100/60 text-blue-500'}
+                        ${status == 'Compeleted' && 'bg-green-100/60 text-green-500'}
+                        ${status == 'Rejected' && 'bg-red-100/60 text-red-500'}
+                        `}
                 >
                     <span
-                        className={`h-1.5 w-1.5 rounded-full bg-yellow-500 `}
+                        className={`h-1.5 w-1.5 rounded-full
+                             ${status == 'Pending' && 'bg-yellow-500'}
+                             ${status == 'In progress' && 'bg-blue-500'}
+                             ${status == 'Compeleted' && 'bg-green-500'}
+                             ${status == 'Rejected' && 'bg-red-500'}
+                             `}
                     ></span>
                     <h2 className='text-sm font-normal '>{status}</h2>
                 </div>
             </td>
             <td className='px-4 py-4 text-sm whitespace-nowrap'>
+
+                {/* Marks as Complete */}
                 <button
+                    onClick={() => handleStatusChange(_id, status, 'Compeleted')}
+                    disabled={status !== "In progress"}
                     title='Mark Complete'
-                    className='text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed'
+                    className='disabled:hover:cursor-not-allowed  text-gray-500 transition-colors duration-200   hover:text-red-500 focus:outline-none disabled:cursor-not-allowed'
                 >
                     <svg
                         xmlns='http://www.w3.org/2000/svg'

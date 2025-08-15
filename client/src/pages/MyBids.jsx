@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../providers/AuthProvider"
 import axios from "axios"
 import BidTableRow from "../components/BidTableRow"
+import toast from "react-hot-toast"
 
 const MyBids = () => {
   const { user } = useContext(AuthContext)
@@ -26,7 +27,33 @@ const MyBids = () => {
   }, [user?.email])
 
 
-  console.log(bids);
+  const handleStatusChange = async (bidId, previousStatus, currentStatus) => {
+    // Validation
+    if (previousStatus !== 'In progress') {
+      return console.log("Not Allowed!");
+    }
+
+    try {
+      const { data } = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/bid-status-update/${bidId}`,
+        { status: currentStatus }
+      )
+
+      console.log("Status updated:", data)
+
+      if (data.modifiedCount > 0) {
+        toast.success("Status updated successfully")
+        // Refresh the list
+        await fetchAllBids()
+      } else {
+        toast.error("Failed to update status")
+      }
+    } catch (error) {
+      console.error("Error updating status:", error.message)
+      toast.error("Failed to update status")
+    }
+
+  }
 
 
   return (
@@ -93,6 +120,7 @@ const MyBids = () => {
                 <tbody className='bg-white divide-y divide-gray-200 '>
                   {
                     bids.map(bid => <BidTableRow
+                      handleStatusChange={handleStatusChange}
                       key={bid._id}
                       bid={bid}
                     >

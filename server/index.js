@@ -153,6 +153,33 @@ async function run() {
       res.send(result)
     })
 
+    // 10. Update bid Status
+    app.patch("/bid-status-update/:id", async (req, res) => {
+      const id = req.params.id
+      const { status } = req.body
+
+      console.log("Updating bid:", id, "to status:", status)
+
+      try {
+        const filter = { _id: new ObjectId(id) }
+        const updated = {
+          $set: { status }
+        }
+
+        const result = await bidsCollection.updateOne(filter, updated)
+
+        if (result.modifiedCount === 0) {
+          return res.status(404).send({ message: "Bid not found or status unchanged" })
+        }
+
+        res.send(result)
+      } catch (error) {
+        console.error("Error updating bid status:", error)
+        res.status(400).send({ error: error.message })
+      }
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
