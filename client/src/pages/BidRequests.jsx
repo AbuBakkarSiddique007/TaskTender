@@ -11,12 +11,17 @@ const BidRequests = () => {
   useEffect(() => {
     fetchAllBidsReq()
     setBidsJobs(bidsJob)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
 
   const fetchAllBidsReq = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/bid-requests/${user?.email}?buyer=true`)
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/bids/${user?.email}?buyer=true`,
+        {
+          withCredentials: true
+        }
+      )
       setBidsJobs(data)
       console.log("data", data);
 
@@ -58,7 +63,7 @@ const BidRequests = () => {
       }
     } catch (error) {
       console.error("Error updating status:", error.message)
-      toast.error("Failed to update status") 
+      toast.error("Failed to update status")
     }
   }
 

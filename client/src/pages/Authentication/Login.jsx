@@ -16,6 +16,13 @@ const Login = () => {
     try {
       await signInWithGoogle()
 
+      // jwt:
+      // const result = await signInWithGoogle()
+      // generate token
+      // const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/jwt`, { email: result?.user?.email })
+      // console.log(data);
+
+
       toast.success('Signin Successful')
       navigate(from, { replace: true })
     } catch (err) {

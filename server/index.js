@@ -1,13 +1,28 @@
 const express = require('express')
 const cors = require('cors')
+
+// a1
+const jwt = require('jsonwebtoken')
+// b1
+const cookieParser = require('cookie-parser')
+
+
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 require('dotenv').config()
 
 const port = process.env.PORT || 9000
 const app = express()
-
-app.use(cors())
+// a3
+const corsOptions = {
+  origin: ["http://localhost:5173"],
+  credentials: true,
+  optionsSuccessStatus: 200
+}
+// a4
+app.use(cors(corsOptions))
 app.use(express.json())
+// b2
+app.use(cookieParser())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.p62hq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -20,11 +35,59 @@ const client = new MongoClient(uri, {
   },
 })
 
+// b3
+// Verify Token
+const verifyToken = async (req, res, next) => {
+
+  const token = req.cookies?.token
+  if (!token) return res.status(401).send("Unauthorized")
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(403).send("Forbidden")
+    }
+    req.user = decoded
+    next()
+  })
+
+  console.log("Token verify ");
+}
+
+
 async function run() {
   try {
     const db = client.db("TaskTender-DB")
     const jobCollection = db.collection("jobs")
     const bidsCollection = db.collection("bids")
+
+    //a2
+    app.post('/jwt', async (req, res) => {
+      const { email } = req.body
+
+      if (!email) {
+        return res.status(400).send({ error: 'Email is required' })
+      }
+
+      // Create token
+      const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: '365d' })
+      console.log('JWT created for:', email)
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "Strict",
+      }).send({ success: true })
+    })
+
+    // a5. Logout || Clear token
+    app.get('/logout', (req, res) => {
+      res.clearCookie('token', {
+        maxAge: 0,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        httpOnly: true
+      })
+      res.send({ success: true })
+    })
 
     //1. Post(save) job data in db
     app.post("/add-job", async (req, res) => {
@@ -125,13 +188,22 @@ async function run() {
 
 
     // 8. Get all bids for a specific person
-    app.get("/bids/:email", async (req, res) => {
+    app.get("/bids/:email", verifyToken, async (req, res) => {
+
+      const decodedEmail = req.user?.email
+
       const email = req.params.email
       const isBuyer = req.query.buyer
 
-      console.log("Email:", email, "Is buyer query?:", isBuyer)
-
+      // console.log("Email:", email, "Is buyer query?:", isBuyer)
       // const filter = { email: email } //Or: {email}
+
+      console.log("Email from token:", decodedEmail);
+      console.log("Email from params:", email);
+
+      if (decodedEmail !== email) {
+        return res.status(403).send("Forbidden")
+      }
 
       let filter = {}
       if (isBuyer) {
@@ -146,12 +218,12 @@ async function run() {
     })
 
     // 9. Get all bid requests for a specific user
-    app.get("/bid-requests/:email", async (req, res) => {
-      const email = req.params.email
-      const filter = { buyer: email }
-      const result = await bidsCollection.find(filter).toArray()
-      res.send(result)
-    })
+    // app.get("/bid-requests/:email", async (req, res) => {
+    //   const email = req.params.email
+    //   const filter = { buyer: email }
+    //   const result = await bidsCollection.find(filter).toArray()
+    //   res.send(result)
+    // })
 
     // 10. Update bid Status
     app.patch("/bid-status-update/:id", async (req, res) => {
@@ -195,7 +267,7 @@ async function run() {
       let options = {};
       if (sort) {
         options.sort = {
-          date: sort === 'asc' ? 1 : -1  
+          date: sort === 'asc' ? 1 : -1
         };
       }
 
