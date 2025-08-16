@@ -4,15 +4,17 @@ import { Link } from 'react-router-dom'
 import { AuthContext } from '../providers/AuthProvider'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
+import useAxiosSecure from '../hooks/useAxiosSecure'
 
 const MyPostedJobs = () => {
+  const axiosSecure = useAxiosSecure()
   const { user } = useContext(AuthContext)
 
   const [jobs, setJobs] = useState([])
 
   const fetchAllJobs = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs/${user?.email}`)
+      const { data } = await axiosSecure.get(`/jobs/${user?.email}`)
       setJobs(data)
     } catch (error) {
       console.log("Something went wrong!!!");
@@ -29,6 +31,7 @@ const MyPostedJobs = () => {
   // Delete job post:
   const handleDelete = async (id) => {
     try {
+      // eslint-disable-next-line no-unused-vars
       const { data } = await axios.delete(`${import.meta.env.VITE_API_URL}/job/${id}`)
       toast.success("Job post deleted successfully.")
       fetchAllJobs()

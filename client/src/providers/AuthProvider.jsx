@@ -62,7 +62,7 @@ const AuthProvider = ({ children }) => {
       }
       else {
         // eslint-disable-next-line no-unused-vars
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/logout`,
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/logOut`,
           { withCredentials: true })
         setUser(null);
         console.log('User logged out');

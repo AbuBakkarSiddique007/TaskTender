@@ -67,7 +67,7 @@ const Navbar = () => {
                   onClick={logOut}
                   className='bg-gray-200 block text-center'
                 >
-                  Logout
+                  logOut
                 </button>
               </li>
             </ul>

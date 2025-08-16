@@ -3,8 +3,11 @@ import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../providers/AuthProvider"
 import BidRequestsTableRow from "../components/BidRequestsTableRow"
 import toast from 'react-hot-toast'
+import useAxiosSecure from "../hooks/useAxiosSecure"
+
 
 const BidRequests = () => {
+  const axiosSecure = useAxiosSecure()
   const { user } = useContext(AuthContext)
   const [bidsJob, setBidsJobs] = useState([])
 
@@ -17,11 +20,7 @@ const BidRequests = () => {
 
   const fetchAllBidsReq = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/bids/${user?.email}?buyer=true`,
-        {
-          withCredentials: true
-        }
-      )
+      const { data } = await axiosSecure.get(`/bids/${user?.email}?buyer=true`)
       setBidsJobs(data)
       console.log("data", data);
 

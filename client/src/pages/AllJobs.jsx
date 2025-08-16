@@ -3,8 +3,10 @@ import { useState } from 'react'
 import JobCard from '../components/JobCard'
 import axios from 'axios'
 import { useEffect } from 'react'
+import useAxiosSecure from '../hooks/useAxiosSecure'
 
 const AllJobs = () => {
+  const axiosSecure = useAxiosSecure()
 
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState('');
@@ -14,8 +16,8 @@ const AllJobs = () => {
   useEffect(() => {
     const fetchAllJobs = async () => {
       try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/all-jobs?filter=${filter}&search=${search}&sort=${sort}`
+        const { data } = await axiosSecure.get(
+          `/all-jobs?filter=${filter}&search=${search}&sort=${sort}`
         );
         setJobs(data);
       } catch (error) {

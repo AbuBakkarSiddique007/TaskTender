@@ -78,8 +78,8 @@ async function run() {
       }).send({ success: true })
     })
 
-    // a5. Logout || Clear token
-    app.get('/logout', (req, res) => {
+    // a5. logOut || Clear token
+    app.get('/logOut', (req, res) => {
       res.clearCookie('token', {
         maxAge: 0,
         secure: process.env.NODE_ENV === "production",
@@ -105,15 +105,24 @@ async function run() {
     })
 
     // 3. Get all jobs posted by Specific user
-    app.get("/jobs/:email", async (req, res) => {
+    app.get("/jobs/:email", verifyToken, async (req, res) => {
+      const decodedEmail = req.user?.email
+
       const email = req.params.email;
+
+      console.log("Email from token:", decodedEmail);
+      console.log("Email from params:", email);
+
+      if (decodedEmail !== email) {
+        return res.status(403).send("Forbidden")
+      }
       const filter = { 'buyer.email': email }
       const result = await jobCollection.find(filter).toArray()
       res.send(result)
     })
 
     // 4. Delete a specific job from DB
-    app.delete("/job/:id", async (req, res) => {
+    app.delete("/job/:id", verifyToken, async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await jobCollection.deleteOne(query)
