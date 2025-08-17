@@ -1,18 +1,39 @@
-import { useContext } from 'react'
+// import { useContext } from 'react'
 import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { AuthContext } from '../providers/AuthProvider'
-import axios from 'axios'
+// import { AuthContext } from '../providers/AuthProvider'
+// import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import useAxiosSecure from '../hooks/useAxiosSecure'
 
 const AddJob = () => {
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
+  const queryClient = useQueryClient()
+
+  const axiosSecure = useAxiosSecure()
+  const { user } = useAuth()
   const [startDate, setStartDate] = useState(new Date())
   const navigate = useNavigate()
 
-  const handleSumbit = async (e) => {
+  // Tanstack query
+  const { isPending, mutateAsync } = useMutation({
+    mutationFn: async (jobData) => {
+      return await axiosSecure.post(`/add-job`, jobData)
+    },
+    onSuccess: (data) => {
+      console.log("Job added successfully:", data)
+      queryClient.invalidateQueries({ queryKey: ['jobs'] })
+    },
+    onError: (error) => {
+      console.error("Error adding job:", error)
+    }
+  })
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const form = e.target
@@ -38,22 +59,21 @@ const AddJob = () => {
       category,
       date,
       bid_count: 0,
-
     }
 
     try {
-      // Make a post request
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/add-job`, formData)
-      console.log("data", data);
-      console.log(formData);
+      // Make a post request using mutation hook
+      // const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/add-job`, formData)
 
+      await mutateAsync(formData)
+
+      console.log(formData)
       form.reset()
+      setStartDate(new Date()) // reset date picker
       toast.success("Added Data successfully.")
       navigate('/my-posted-jobs')
-
-    }
-    catch (error) {
-      console.log("Error", error);
+    } catch (error) {
+      console.log("Error", error)
       toast.error(error.message)
     }
   }
@@ -65,7 +85,7 @@ const AddJob = () => {
           Post a Job
         </h2>
 
-        <form onSubmit={handleSumbit}>
+        <form onSubmit={handleSubmit}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='job_title'>
@@ -156,7 +176,9 @@ const AddJob = () => {
           </div>
           <div className='flex justify-end mt-6'>
             <button className='disabled:cursor-not-allowed px-8 py-2.5 leading-5 text-white transition-colors duration-300 transhtmlForm bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600'>
-              Save
+              {
+                isPending ? "Saving..." : "Save"
+              }
             </button>
           </div>
         </form>

@@ -2,28 +2,46 @@
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import JobCard from './JobCard'
-import { useState } from 'react';
+// import { useState } from 'react';
 import axios from 'axios';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from './LoadingSpinner';
 
 const TabCategories = () => {
 
-  const [jobs, setJobs] = useState([]);
+  // const [jobs, setJobs] = useState([]);
+  // const fetchAllJobs = async () => {
+  //   try {
+  //     const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
+  //     setJobs(data);
+  //   } catch (error) {
+  //     console.log("Error", error);
+  //   }
+  // };
 
-  const fetchAllJobs = async () => {
-    try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
-      setJobs(data);
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };
+  // useEffect(() => {
+  //   fetchAllJobs();
+  // }, []);
 
-  useEffect(() => {
-    fetchAllJobs();
-  }, []);
 
-  // console.log(jobs);
+  const { data: jobs,
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ['jobs'],
+    queryFn:
+      async () => {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/jobs`);
+        return data;
+      }
+  })
+
+  console.log(jobs);
+  if (isLoading) return <LoadingSpinner></LoadingSpinner>
+  if (isError) {
+    return <div>Error fetching jobs</div>;
+  }
 
   return (
     <Tabs>
