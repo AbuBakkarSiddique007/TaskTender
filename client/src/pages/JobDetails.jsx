@@ -37,13 +37,14 @@ const JobDetails = () => {
     category,
     date,
     buyer, _id,
+    // eslint-disable-next-line no-unused-vars
     bid_count } = job || {}
 
   const handleBidFormSubmit = async (e) => {
     e.preventDefault()
 
     const form = e.target
-    const price = form.price.value
+    const price = parseFloat(form.price.value);
     const email = user?.email
     const comment = form.comment.value
 
@@ -54,6 +55,7 @@ const JobDetails = () => {
     if (!price || !email) {
       return toast.error("Please fill in all required fields!")
     }
+
     // 3. Deadline crossed validation
     if (compareAsc(new Date(), new Date(date)) === 1) {
       return toast.error("Deadline crossed. Bidding forbidden!")
@@ -63,6 +65,7 @@ const JobDetails = () => {
     if (price > max_price) {
       return toast.error(`Offer must be less than or equal to $${max_price}!`)
     }
+
     // 5. Offer a deadline within deadline.
     if (compareAsc(new Date(startDate), new Date(date)) === 1) {
       return toast.error("Deadline crossed. Bidding forbidden!")
@@ -97,10 +100,10 @@ const JobDetails = () => {
   }
 
   return (
-    <div className='flex flex-col md:flex-row justify-around gap-5  items-center min-h-[calc(100vh-306px)] md:max-w-screen-xl mx-auto '>
+    <div className='flex flex-col md:flex-row justify-center gap-5 items-start min-h-[calc(100vh-306px)] md:max-w-screen-xl mx-auto px-4 py-6'>
 
       {/* Job Details */}
-      <div className='flex-1  px-4 py-7 bg-white rounded-md shadow-md md:min-h-[350px]'>
+      <div className='w-full md:flex-1 px-4 py-6 bg-white rounded-md shadow-md md:min-h-[350px]'>
         <div className='flex items-center justify-between'>
           {
             date && <span className='text-sm font-light text-gray-800 '>
@@ -157,7 +160,7 @@ const JobDetails = () => {
 
 
       {/* Place A Bid Form */}
-      <section className='p-6 w-full  bg-white rounded-md shadow-md flex-1 md:min-h-[350px]'>
+      <section className='w-full md:flex-1 px-4 py-6 bg-white rounded-md shadow-md md:min-h-[350px]'>
         <h2 className='text-lg font-semibold text-gray-700 capitalize '>
           Place A Bid
         </h2>

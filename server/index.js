@@ -55,7 +55,8 @@ const verifyToken = async (req, res, next) => {
 
 async function run() {
   try {
-    const db = client.db("TaskTender-DB")
+    // OpportuneX
+    const db = client.db("OpportuneX-DB")
     const jobCollection = db.collection("jobs")
     const bidsCollection = db.collection("bids")
 
@@ -262,15 +263,21 @@ async function run() {
 
     // 11. All Jobs
     app.get('/all-jobs', async (req, res) => {
-      const filter = req.query.filter
-      const search = req.query.search
-      const sort = req.query.sort
+      const filter = req.query.filter;
+      const search = req.query.search;
+      const sort = req.query.sort;
 
-      let query = {
-        title: {
-          $regex: search,
-          $options: 'i'
-        }
+      // Build query object
+      let query = {};
+
+      // Title search
+      if (search) {
+        query.title = { $regex: search, $options: 'i' };
+      }
+
+      // Category filter
+      if (filter) {
+        query.category = filter;
       }
 
       let options = {};
@@ -280,10 +287,14 @@ async function run() {
         };
       }
 
-      const result = await jobCollection.find(query, options).toArray();
-      res.send(result);
-    })
-
+      try {
+        const result = await jobCollection.find(query, options).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Failed to fetch jobs' });
+      }
+    });
 
 
     // Send a ping to confirm a successful connection
@@ -298,7 +309,7 @@ async function run() {
 }
 run().catch(console.dir)
 app.get('/', (req, res) => {
-  res.send('Hello from TaskTender Server....')
+  res.send('Hello from OpportuneX Server....')
 })
 
 app.listen(port, () => console.log(`Server running on port ${port}`))

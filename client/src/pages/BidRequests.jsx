@@ -5,34 +5,30 @@ import BidRequestsTableRow from "../components/BidRequestsTableRow"
 import toast from 'react-hot-toast'
 import useAxiosSecure from "../hooks/useAxiosSecure"
 
-
 const BidRequests = () => {
   const axiosSecure = useAxiosSecure()
   const { user } = useContext(AuthContext)
   const [bidsJob, setBidsJobs] = useState([])
 
   useEffect(() => {
-    fetchAllBidsReq()
-    setBidsJobs(bidsJob)
+    if (user?.email) fetchAllBidsReq()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
-
 
   const fetchAllBidsReq = async () => {
     try {
       const { data } = await axiosSecure.get(`/bids/${user?.email}?buyer=true`)
       setBidsJobs(data)
-      console.log("data", data);
-
+      console.log("data", data)
     } catch (error) {
-      console.log(error.message);
+      console.log(error.message)
+      toast.error("Failed to fetch bid requests")
     }
   }
 
   const handleStatusChange = async (bidId, previousStatus, currentStatus) => {
     console.table({ bidId, previousStatus, currentStatus })
 
-    // Validation
     if (previousStatus === currentStatus) {
       console.log("Status unchanged")
       toast.warning("Status is the same")
@@ -48,14 +44,11 @@ const BidRequests = () => {
     try {
       const { data } = await axios.patch(
         `${import.meta.env.VITE_API_URL}/bid-status-update/${bidId}`,
-        { status: currentStatus } // Changed from currentStatus to status
+        { status: currentStatus }
       )
-
-      console.log("Status updated:", data)
 
       if (data.modifiedCount > 0) {
         toast.success("Status updated successfully")
-        // Refresh the list
         await fetchAllBidsReq()
       } else {
         toast.error("Failed to update status")
@@ -68,86 +61,40 @@ const BidRequests = () => {
 
   return (
     <section className='container px-4 mx-auto my-12'>
-      <div className='flex items-center gap-x-3'>
-        <h2 className='text-lg font-medium text-gray-800 '>Bid Requests</h2>
-
-        <span className='px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full '>
-          {bidsJob.length} Requests
+      {/* Page Header */}
+      <div className='flex flex-col md:flex-row md:justify-start md:items-center gap-4 mb-8'>
+        <h2 className='text-3xl font-bold text-indigo-700'>
+          Incoming Bid Requests
+        </h2>
+        <span className='px-4 py-1 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-full'>
+          {bidsJob.length} Request{bidsJob.length !== 1 && 's'}
         </span>
       </div>
 
-      <div className='flex flex-col mt-6'>
-        <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
-          <div className='inline-block min-w-full py-2 align-middle md:px-6 lg:px-8'>
-            <div className='overflow-hidden border border-gray-200  md:rounded-lg'>
-              <table className='min-w-full divide-y divide-gray-200'>
-                <thead className='bg-gray-50'>
-                  <tr>
-                    <th
-                      scope='col'
-                      className='py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      <div className='flex items-center gap-x-3'>
-                        <span>Title</span>
-                      </div>
-                    </th>
-                    <th
-                      scope='col'
-                      className='py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      <div className='flex items-center gap-x-3'>
-                        <span>Email</span>
-                      </div>
-                    </th>
-
-                    <th
-                      scope='col'
-                      className='px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      <span>Deadline</span>
-                    </th>
-
-                    <th
-                      scope='col'
-                      className='px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      <button className='flex items-center gap-x-2'>
-                        <span>Price</span>
-                      </button>
-                    </th>
-
-                    <th
-                      scope='col'
-                      className='px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      Category
-                    </th>
-
-                    <th
-                      scope='col'
-                      className='px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500'
-                    >
-                      Status
-                    </th>
-
-                    <th className='px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500'>
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className='bg-white divide-y divide-gray-200 '>
-
-                  {bidsJob.map(bid => <BidRequestsTableRow
-                    handleStatusChange={handleStatusChange}
-                    key={bid._id}
-                    bid={bid} >
-                  </BidRequestsTableRow>)}
-
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      {/* Table */}
+      <div className='overflow-x-auto shadow-lg rounded-xl'>
+        <table className='min-w-full divide-y divide-gray-200 bg-white rounded-xl'>
+          <thead className='bg-indigo-50'>
+            <tr>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Title</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Email</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Deadline</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Price</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Category</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Status</th>
+              <th className='px-6 py-3 text-left text-gray-600 font-medium'>Actions</th>
+            </tr>
+          </thead>
+          <tbody className='divide-y divide-gray-100'>
+            {bidsJob.map(bid => (
+              <BidRequestsTableRow
+                key={bid._id}
+                bid={bid}
+                handleStatusChange={handleStatusChange}
+              />
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   )

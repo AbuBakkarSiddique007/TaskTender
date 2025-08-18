@@ -45,15 +45,16 @@ const TabCategories = () => {
 
   return (
     <Tabs>
-      <div className=' container px-6 py-10 mx-auto'>
-        <h1 className='text-2xl font-semibold text-center text-gray-800 capitalize lg:text-3xl '>
+      <div className='container px-6 py-10 mx-auto'>
+        <h1 className='text-3xl font-extrabold text-center text-gray-900 capitalize lg:text-4xl'>
           Browse Jobs By Categories
         </h1>
 
-        <p className='max-w-2xl mx-auto my-6 text-center text-gray-500 '>
-          Three categories available for the time being. They are Web
-          Development, Graphics Design and Digital Marketing. Browse them by
-          clicking on the tabs below.
+        <p className='max-w-2xl mx-auto my-6 text-center text-gray-600 text-lg font-medium leading-relaxed'>
+          Explore available job opportunities across various fields. Whether you are
+          looking for Web Development, Graphics Design, or Digital Marketing roles,
+          you can browse the categories below and find the perfect match for your
+          skills and interests.
         </p>
         <div className='flex items-center justify-center'>
           <TabList>
@@ -62,7 +63,7 @@ const TabCategories = () => {
             <Tab>Digital Marketing</Tab>
           </TabList>
         </div>
-        <TabPanel>
+        {/* <TabPanel>
           <div className='grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {
               jobs.filter(job => job.category === 'Web Development')
@@ -96,7 +97,20 @@ const TabCategories = () => {
                 ></JobCard>)
             }
           </div>
-        </TabPanel>
+        </TabPanel> */}
+
+        {['Web Development', 'Graphics Design', 'Digital Marketing'].map(category => (
+          <TabPanel key={category}>
+            <div className="grid grid-cols-1 gap-8 mt-8 xl:mt-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {jobs
+                .filter(job => job.category === category)
+                .map(job => (
+                  <JobCard key={job._id} job={job} />
+                ))}
+            </div>
+          </TabPanel>
+        ))}
+
       </div>
     </Tabs>
   )

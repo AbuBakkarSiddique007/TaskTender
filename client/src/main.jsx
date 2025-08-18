@@ -7,9 +7,6 @@ import AuthProvider from './providers/AuthProvider'
 import { Toaster } from 'react-hot-toast'
 
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'

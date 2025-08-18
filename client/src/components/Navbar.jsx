@@ -1,78 +1,152 @@
-import { useContext } from 'react'
-import logo from '../assets/images/logo.png'
-import { AuthContext } from '../providers/AuthProvider'
-import { Link } from 'react-router-dom'
+import newLogo from '../assets/images/newLogo.png'
+import { NavLink, Link } from 'react-router-dom'
+import useAuth from '../hooks/useAuth'
+
 const Navbar = () => {
-  const { user, logOut } = useContext(AuthContext)
+  const { user, logOut } = useAuth()
 
   return (
-    <div className='navbar bg-base-100 shadow-sm container px-4 mx-auto'>
-      <div className='flex-1'>
-        <Link to='/' className='flex gap-2 items-center'>
-          <img className='w-auto h-7' src={logo} alt='' />
-          <span className='font-bold'>TaskTender</span>
-        </Link>
-      </div>
-      <div className='flex-none'>
-        <ul className='menu menu-horizontal px-1'>
-          <li>
-            <Link to='/'>Home</Link>
-          </li>
-          <li>
-            <Link to='/jobs'>All Jobs</Link>
-          </li>
+    <div className='bg-white shadow-md container px-6 mx-auto py-3'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
 
-          {!user && (
+        <div className='flex-1 flex items-center justify-center sm:justify-start'>
+          <Link to='/' className='flex gap-3 items-center'>
+            <img className='w-auto h-12' src={newLogo} alt='OpportuneX Logo' />
+            <span className='font-extrabold text-2xl text-gray-900 hover:text-blue-600 transition-colors'>
+              OpportuneX
+            </span>
+          </Link>
+        </div>
+
+        <div className='flex flex-col sm:flex-row sm:items-center sm:gap-6'>
+          <ul className='flex flex-col sm:flex-row gap-3 sm:gap-6 font-semibold text-lg'>
             <li>
-              <Link to='/login'>Login</Link>
+              <NavLink
+                to='/'
+                className={({ isActive }) =>
+                  `transition-colors duration-200 ${isActive
+                    ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
+                    : 'text-gray-700 hover:text-blue-600'
+                  }`
+                }
+              >
+                Home
+              </NavLink>
             </li>
-          )}
-        </ul>
+            <li>
+              <NavLink
+                to='/jobs'
+                className={({ isActive }) =>
+                  `transition-colors duration-200 ${isActive
+                    ? 'text-blue-600 border-b-2 border-blue-600 pb-1'
+                    : 'text-gray-700 hover:text-blue-600'
+                  }`
+                }
+              >
+                All Jobs
+              </NavLink>
+            </li>
 
-        {user && (
-          <div className='dropdown dropdown-end z-50'>
-            <div
-              tabIndex={0}
-              role='button'
-              className='btn btn-ghost btn-circle avatar'
-            >
-              <div title={user?.displayName} className='w-10 rounded-full'>
-                <img
-                  referrerPolicy='no-referrer'
-                  alt='User Profile Photo'
-                  src={user?.photoURL}
-                />
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className='menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52'
-            >
+            {!user && (
               <li>
-                <Link to='/add-job' className='justify-between'>
-                  Add Job
-                </Link>
-              </li>
-              <li>
-                <Link to='/my-posted-jobs'>My Posted Jobs</Link>
-              </li>
-              <li>
-                <Link to='/my-bids'>My Bids</Link>
-              </li>
-              <li>
-                <Link to='/bid-requests'>Bid Requests</Link>
-              </li>
-              <li className='mt-2'>
-                <button
-                  onClick={logOut}
-                  className='bg-gray-200 block text-center'
+                <NavLink
+                  to='/login'
+                  className={({ isActive }) =>
+                    `px-5 py-2 rounded-lg transition-all duration-200 text-lg text-center block ${isActive
+                      ? 'bg-blue-700 text-white shadow-md'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`
+                  }
                 >
-                  logOut
-                </button>
+                  Login
+                </NavLink>
               </li>
-            </ul>
-          </div>
-        )}
+            )}
+          </ul>
+
+          {user && (
+            <div className='dropdown dropdown-end z-50 mt-3 sm:mt-0'>
+              <div
+                tabIndex={0}
+                role='button'
+                className='btn btn-ghost btn-circle avatar hover:ring-2 hover:ring-blue-400 transition-all duration-200 mx-auto sm:mx-0'
+              >
+                <div
+                  title={user?.displayName}
+                  className='w-11 h-11 rounded-full overflow-hidden border-2 border-gray-300'
+                >
+                  <img
+                    referrerPolicy='no-referrer'
+                    alt='User Profile'
+                    src={
+                      user?.photoURL ||
+                      'https://i.ibb.co.com/RGqpdvJL/images.jpg'
+                    }
+                    className='object-cover w-full h-full'
+                  />
+                </div>
+              </div>
+
+              <ul
+                tabIndex={0}
+                className='menu menu-sm dropdown-content mt-3 z-[1] p-3 shadow-lg bg-white rounded-xl w-56 border border-gray-200 text-gray-700 text-base font-medium'
+              >
+                <li>
+                  <NavLink
+                    to='/add-job'
+                    className={({ isActive }) =>
+                      `rounded-md transition-colors duration-200 px-3 py-2 ${isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50'
+                      }`
+                    }
+                  >
+                    Add Job
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to='/my-posted-jobs'
+                    className={({ isActive }) =>
+                      `rounded-md transition-colors duration-200 px-3 py-2 ${isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50'
+                      }`
+                    }
+                  >
+                    My Posted Jobs
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to='/my-bids'
+                    className={({ isActive }) =>
+                      `rounded-md transition-colors duration-200 px-3 py-2 ${isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50'
+                      }`
+                    }
+                  >
+                    My Bids
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to='/bid-requests'
+                    className={({ isActive }) =>
+                      `rounded-md transition-colors duration-200 px-3 py-2 ${isActive ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50'
+                      }`
+                    }
+                  >
+                    Bid Requests
+                  </NavLink>
+                </li>
+                <li className='mt-2'>
+                  <button
+                    onClick={logOut}
+                    className='bg-red-500 text-white w-full py-2 rounded-md hover:bg-red-600 transition-all duration-200 text-base font-semibold'
+                  >
+                    Log Out
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
