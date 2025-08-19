@@ -18,8 +18,8 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className='flex flex-col sm:flex-row sm:items-center sm:gap-6'>
-          <ul className='flex flex-col sm:flex-row gap-3 sm:gap-6 font-semibold text-lg'>
+        <div className='flex flex-col justify-center items-center sm:flex-row sm:items-center sm:gap-6'>
+          <ul className='flex flex-col justify-center items-center sm:flex-row gap-3 sm:gap-6 font-semibold text-lg'>
             <li>
               <NavLink
                 to='/'
